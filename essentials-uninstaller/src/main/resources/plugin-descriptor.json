@@ -1,0 +1,32 @@
+{
+  "id": "uninstallerPlugin",
+  "name": "Uninstaller",
+  "icon": "/todo.svg",
+  "introduction": "todo",
+  "description": "<ul><li>todo</li></ul>",
+  "imageUrls": [
+    "/todo.png"
+  ],
+  "hasConfiguration": true,
+  "restClasses": [
+    "org.onehippo.cms7.essentials.plugins.uninstaller.UnInstallResource"
+  ],
+  "type": "feature",
+  "vendor": {
+    "name": "Bloomreach",
+    "url": "https://www.bloomreach.com"
+  },
+  "categories": {
+    "type": [
+      "feature"
+    ],
+    "license": [
+      "community"
+    ]
+  },
+  "pluginDependencies": [
+    {
+      "pluginId": "skeleton"
+    }
+  ]
+}

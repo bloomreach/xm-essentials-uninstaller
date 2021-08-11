@@ -1,0 +1,74 @@
+definitions:
+  config:
+    /hst:hst/hst:configurations/myproject/hst:workspace/hst:containers:
+      jcr:primaryType: hst:containercomponentfolder
+      /base:
+        jcr:primaryType: hst:containercomponentfolder
+        /top:
+          .meta:residual-child-node-category: content
+          jcr:primaryType: hst:containercomponent
+          hippo:identifier: 0a154a3e-bb68-49b1-bc06-d6d40289f2bf
+          hst:label: Top
+          hst:xtype: hst.vbox
+        /footer:
+          .meta:residual-child-node-category: content
+          jcr:primaryType: hst:containercomponent
+          hippo:identifier: 92a10762-ef63-4ea6-b0e0-c880d916d2c5
+          hst:label: Footer
+          hst:xtype: hst.vbox
+      /homepage:
+        jcr:primaryType: hst:containercomponentfolder
+        /main:
+          .meta:residual-child-node-category: content
+          jcr:primaryType: hst:containercomponent
+          hippo:identifier: f99c9251-7ebd-4b5b-a4c7-6f8eb53a6b76
+          hst:label: Home Page Main
+          hst:xtype: hst.vbox
+      /pagenotfound:
+        jcr:primaryType: hst:containercomponentfolder
+        /main:
+          .meta:residual-child-node-category: content
+          jcr:primaryType: hst:containercomponent
+          hippo:identifier: c2bd7860-5011-4efd-9446-7cb8d3599561
+          hst:label: Page-Not-Found Main
+          hst:xtype: hst.vbox
+      /eventslist:
+        jcr:primaryType: hst:containercomponentfolder
+        /main:
+          .meta:residual-child-node-category: content
+          jcr:primaryType: hst:containercomponent
+          hippo:identifier: 5b37e7d6-b762-49d4-85ad-8ad29015b3d2
+          hst:label: Event List Main
+          hst:xtype: hst.vbox
+      /eventspage:
+        jcr:primaryType: hst:containercomponentfolder
+        /main:
+          .meta:residual-child-node-category: content
+          jcr:primaryType: hst:containercomponent
+          hippo:identifier: c9615583-4b74-4769-a2d4-b5804db9ca23
+          hst:label: Event Page Main
+          hst:xtype: hst.vbox
+      /faqlist:
+        jcr:primaryType: hst:containercomponentfolder
+        /main:
+          .meta:residual-child-node-category: content
+          jcr:primaryType: hst:containercomponent
+          hippo:identifier: 7e6effd6-febb-4ccf-b7c7-64d9b7e67079
+          hst:label: Faq Main
+          hst:xtype: hst.vbox
+      /newslist:
+        jcr:primaryType: hst:containercomponentfolder
+        /main:
+          .meta:residual-child-node-category: content
+          jcr:primaryType: hst:containercomponent
+          hippo:identifier: 0f5d8514-a0ea-4d19-900f-122c3a7d8166
+          hst:label: News List Main
+          hst:xtype: hst.vbox
+      /newspage:
+        jcr:primaryType: hst:containercomponentfolder
+        /main:
+          .meta:residual-child-node-category: content
+          jcr:primaryType: hst:containercomponent
+          hippo:identifier: 58c7c2fc-2256-4363-9220-b6b9181baa48
+          hst:label: News Page Main
+          hst:xtype: hst.vbox
