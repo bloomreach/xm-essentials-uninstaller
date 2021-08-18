@@ -14,6 +14,16 @@
   <dependencies>
     <dependency>
       <groupId>org.onehippo.cms7</groupId>
+      <artifactId>hippo-essentials-plugin-banner-and-carousel-v2b</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.onehippo.cms7</groupId>
+      <artifactId>hippo-essentials-plugin-banner-and-carousel-v2a</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.onehippo.cms7</groupId>
       <artifactId>hippo-essentials-uninstaller</artifactId>
       <version>0.1.0-SNAPSHOT</version>
     </dependency>
