@@ -1,6 +1,7 @@
 package org.onehippo.cms7.essentials.plugins.uninstaller;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
@@ -8,10 +9,11 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.onehippo.cms7.essentials.plugin.sdk.instruction.*;
 import org.onehippo.cms7.essentials.plugin.sdk.instruction.parser.DefaultInstructionParser;
+import org.onehippo.cms7.essentials.plugin.sdk.utils.BundleFileInfo;
+import org.onehippo.cms7.essentials.plugin.sdk.utils.BundleInfo;
 import org.onehippo.cms7.essentials.plugin.sdk.utils.TemplateUtils;
 import org.onehippo.cms7.essentials.plugins.uninstaller.model.SimpleNode;
 import org.onehippo.cms7.essentials.plugins.uninstaller.model.UninstallModel;
-import org.onehippo.cms7.essentials.plugins.uninstaller.service.MavenExtendedDependencyService;
 import org.onehippo.cms7.essentials.plugins.uninstaller.service.PluginService;
 import org.onehippo.cms7.essentials.plugins.uninstaller.service.PluginSet;
 import org.onehippo.cms7.essentials.sdk.api.install.Instruction;
@@ -24,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import javax.inject.Inject;
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.ws.rs.*;
@@ -32,9 +35,11 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -218,6 +223,36 @@ public class UnInstallResource {
                             removeFile(freeMarkerTarget);
                         }
                         break;
+                    case TranslationsInstruction:
+                        TranslationsInstruction translationsInstruction = InstructionType.getInstruction(instruction);
+
+                        String source = translationsInstruction.getSource();
+
+                        String interpolated = TemplateUtils.injectTemplate(source, uninstallModel.getParameters());
+                        if (interpolated == null) {
+//                            LOG.error("Can't read resource '{}'.", resourcePath);
+//                            return false;
+                        }
+
+                        Session session = jcrService.createSession();
+                        final InputStream in = new ByteArrayInputStream(interpolated.getBytes(StandardCharsets.UTF_8));
+                        try {
+                            for (BundleInfo bundleInfo : BundleFileInfo.readInfo(in).getBundleInfos()) {
+                                removeResourceBundle(bundleInfo, session);
+                            }
+                            session.save();
+                        } catch (RepositoryException e) {
+                            log.error("error", e);
+                        } catch (IOException e) {
+                            log.error("error", e);
+                        } finally {
+                            if (session != null) {
+                                session.logout();
+                            }
+
+                        }
+
+                        break;
                     default:
                         break;
                 }
@@ -276,22 +311,49 @@ public class UnInstallResource {
     }
 
     public enum InstructionType {
-        MavenDependencyInstruction(MavenDependencyInstruction.class.getSimpleName()),
-        XmlInstruction(XmlInstruction.class.getSimpleName()),
-        FileInstruction(FileInstruction.class.getSimpleName()),
-        FreemarkerInstruction(FreemarkerInstruction.class.getSimpleName())
-//        CndInstruction(CndInstruction.class.getSimpleName()),
+        MavenDependencyInstruction,
+        XmlInstruction,
+        FileInstruction,
+        FreemarkerInstruction,
+        TranslationsInstruction
+//        CndInstruction,
         ;
-
-        private String simpleClassName;
-
-        InstructionType(String simpleClassName) {
-            this.simpleClassName = simpleClassName;
-        }
 
         public static <T extends Instruction> T getInstruction(Instruction instruction) {
             return (T) instruction;
         }
+    }
+
+    private static void removeResourceBundle(final BundleInfo bundleInfo, final Session session)
+            throws RepositoryException {
+        final Node bundles = getResourceBundles(bundleInfo.getName(), session);
+        final Node bundle = getNode(bundleInfo.getLocale().toString(), bundles);
+        if (bundle != null) {
+            for (Map.Entry<String, String> entry : bundleInfo.getTranslations().entrySet()) {
+                bundle.getProperty(entry.getKey()).remove();
+            }
+        }
+    }
+
+    private static final String TRANSLATIONS_PATH = "/hippo:configuration/hippo:translations";
+
+
+    private static Node getResourceBundles(final String name, final Session session)
+            throws RepositoryException {
+        Node node = session.getNode(TRANSLATIONS_PATH);
+        final String[] pathElements = StringUtils.split(name, '.');
+        for (String pathElement : pathElements) {
+            node = getNode(pathElement, node);
+        }
+        return node;
+    }
+
+    private static Node getNode(final String name, final Node resourceBundles)
+            throws RepositoryException {
+        if (resourceBundles.hasNode(name)) {
+            return resourceBundles.getNode(name);
+        }
+        return null;
     }
 }
 
