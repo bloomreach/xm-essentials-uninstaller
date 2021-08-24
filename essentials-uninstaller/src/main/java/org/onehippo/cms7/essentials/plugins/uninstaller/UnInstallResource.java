@@ -120,6 +120,7 @@ public class UnInstallResource {
         UninstallModel uninstallModel = new UninstallModel();
         uninstallModel.setParameters(parsedParameters);
         uninstallModel.setInstructions(instructions);
+        uninstallModel.setDependency(uninstallablePlugin.getPluginDependencies().stream().filter(dependency -> !dependency.getPluginId().equals("skeleton")).collect(Collectors.toList()));
 
         return uninstallModel;
     }
