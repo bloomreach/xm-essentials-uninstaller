@@ -45,6 +45,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.io.IOUtils.closeQuietly;
+
 
 @Produces({MediaType.APPLICATION_JSON})
 @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
@@ -52,10 +54,6 @@ import java.util.stream.Collectors;
 public class UnInstallResource {
 
     private static final Logger log = LoggerFactory.getLogger(UnInstallResource.class);
-
-//
-//    @Inject
-//    MavenExtendedDependencyService mavenExtendedDependencyService;
 
     @Inject
     private ApplicationContext appContext;
@@ -189,16 +187,9 @@ public class UnInstallResource {
                     case MavenDependencyInstruction:
                         MavenDependencyInstruction mavenDependencyInstruction = InstructionType.getInstruction(instruction);
                         String targetPom = mavenDependencyInstruction.getTargetPom();
-                        String pluginLocation = "/META-INF/maven." + mavenDependencyInstruction.getGroupId() + "." + mavenDependencyInstruction.getArtifactId() + "/pom.xml";
-                        URL resource = getClass().getResource(pluginLocation);
-//                        ApplicationContext.
-//                        InputStream resourceAsStream = ServletContext.getResourceAsStream("/srPaySlipSalaryComp.jasper");
-//                        ApplicationContextProvider.get
-
-//                        final Module module = Module.pomForName(targetPom);
-
-//                        mavenExtendedDependencyService.re
-                        feedbackMessages.add(new UserFeedback().addError("manual step required, remove "
+//                        String pluginLocation = "/META-INF/maven." + mavenDependencyInstruction.getGroupId() + "." + mavenDependencyInstruction.getArtifactId() + "/pom.xml";
+//                        URL resource = getClass().getResource(pluginLocation);
+                        feedbackMessages.add(new UserFeedback().addError("manual uninstallation required, remove "
                                 + mavenDependencyInstruction.getGroupId() + ":" + mavenDependencyInstruction.getArtifactId() +
                                 " from " + mavenDependencyInstruction.getTargetPom()));
                         break;
@@ -226,33 +217,33 @@ public class UnInstallResource {
                         break;
                     case TranslationsInstruction:
                         TranslationsInstruction translationsInstruction = InstructionType.getInstruction(instruction);
-
                         String source = translationsInstruction.getSource();
-
                         String interpolated = TemplateUtils.injectTemplate(source, uninstallModel.getParameters());
-                        if (interpolated == null) {
-//                            LOG.error("Can't read resource '{}'.", resourcePath);
-//                            return false;
-                        }
-
-                        Session session = jcrService.createSession();
-                        final InputStream in = new ByteArrayInputStream(interpolated.getBytes(StandardCharsets.UTF_8));
-                        try {
-                            for (BundleInfo bundleInfo : BundleFileInfo.readInfo(in).getBundleInfos()) {
-                                removeResourceBundle(bundleInfo, session);
+                        if (interpolated != null) {
+                            Session session = jcrService.createSession();
+                            try (InputStream in = new ByteArrayInputStream(interpolated.getBytes(StandardCharsets.UTF_8))) {
+                                for (BundleInfo bundleInfo : BundleFileInfo.readInfo(in).getBundleInfos()) {
+                                    removeResourceBundle(bundleInfo, session);
+                                }
+                                session.save();
+                            } catch (RepositoryException e) {
+                                log.error("error", e);
+                            } catch (IOException e) {
+                                log.error("error", e);
+                            } finally {
+                                if (session != null) {
+                                    session.logout();
+                                }
                             }
-                            session.save();
-                        } catch (RepositoryException e) {
-                            log.error("error", e);
-                        } catch (IOException e) {
-                            log.error("error", e);
-                        } finally {
-                            if (session != null) {
-                                session.logout();
-                            }
-
                         }
-
+                        break;
+                    case ExecuteInstruction:
+                        ExecuteInstruction executeInstruction = InstructionType.getInstruction(instruction);
+                        feedbackMessages.add(new UserFeedback().addError("manual uninstallation required: check " + executeInstruction.getClazz()));
+                        break;
+                    case HstBeanClassesInstruction:
+                        HstBeanClassesInstruction hstBeanClassesInstruction = InstructionType.getInstruction(instruction);
+                        feedbackMessages.add(new UserFeedback().addError("manual uninstallation required: check " + hstBeanClassesInstruction.getPattern()));
                         break;
                     default:
                         break;
@@ -316,7 +307,9 @@ public class UnInstallResource {
         XmlInstruction,
         FileInstruction,
         FreemarkerInstruction,
-        TranslationsInstruction
+        TranslationsInstruction,
+        ExecuteInstruction,
+        HstBeanClassesInstruction,
 //        CndInstruction,
         ;
 

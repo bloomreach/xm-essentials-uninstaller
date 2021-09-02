@@ -1,12 +1,9 @@
 {
   "id": "uninstallerPlugin",
   "name": "Uninstaller",
-  "icon": "/todo.svg",
-  "introduction": "todo",
-  "description": "<ul><li>todo</li></ul>",
-  "imageUrls": [
-    "/todo.png"
-  ],
+  "icon": "/essentials/feature/images/uninstall.png",
+  "introduction": "The uninstall plugin",
+  "description": "<h2>Uninstaller Plugin</h2><ul><li>Retrieve Uninstallable Plugins: http://localhost:8080/essentials/rest/dynamic/uninstaller/plugin/all</li><li>Get uninstall info: http://localhost:8080/essentials/rest/dynamic/uninstaller/plugin/bannerPlugin/info</li><li>Uninstall: http://localhost:8080/essentials/rest/dynamic/uninstaller/plugin/bannerPlugin/uninstall</li></ul>",
   "hasConfiguration": true,
   "restClasses": [
     "org.onehippo.cms7.essentials.plugins.uninstaller.UnInstallResource"
