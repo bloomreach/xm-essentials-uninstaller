@@ -179,6 +179,8 @@
         </property>
       </activation>
       <modules>
+        <module>essentials-uninstaller</module>
+        <module>bannerv2</module>
         <module>cms-dependencies</module>
         <module>repository-data</module>
         <module>cms</module>
